@@ -81,6 +81,32 @@ public class UserBookingService {
         }
     }
 
+    public Boolean bookSeat(Train train, int row, int col){
+        try{
+            TrainService trainService = new TrainService();
+            List<List<Integer>> seats = train.getSeats();
+            if(row >=0 && row < seats.size() && col>=0 && col<seats.get(row).size()){
+                if(seats.get(row).get(col) == 0){
+                    // seat is available
+                    seats.get(row).set(col, 1); // mark as booked
+                    train.setSeats(seats);
+                    trainService.addTrain(train); // update train in the service
+                    return Boolean.TRUE;
+                }else{
+                    System.out.println("Seat already booked.");
+                    return Boolean.FALSE;
+                }
+            }else{
+                System.out.println("Invalid row or column.");
+                return Boolean.FALSE; // invalid row or column
+            }
+
+        }catch (IOException e){
+            System.out.println("Error while booking seat: " + e.getMessage());
+            return Boolean.FALSE;
+        }
+    }
+
     public List<Train> searchTrains(String sourceStation, String destinationStation) {
         try{
             TrainService trainService = new TrainService();

@@ -5,10 +5,7 @@ import ticket.booking.entities.User;
 import ticket.booking.service.UserBookingService;
 import ticket.booking.util.UserServiceUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-import java.util.UUID;
+import java.util.*;
 
 public class App {
 
@@ -28,6 +25,7 @@ public class App {
                 System.out.println("6. Cancel my booking");
                 System.out.println("7. Exit");
                 count = scn.nextInt();
+                Train trainSelectedForBooking = new Train();
                 scn.nextLine(); // Consume newline
 
                 switch (count) {
@@ -58,11 +56,37 @@ public class App {
                         String destinationStation = scn.nextLine();
                         System.out.println("Searching trains from " + sourceStation + " to " + destinationStation + "...");
                         List<Train> trains = userBookingService.searchTrains(sourceStation, destinationStation);
-                        System.out.println("Trains found: "+ trains.size());
-                        System.out.println("Available trains: "+ trains);
+                        int index = 1;
+                        for(Train train : trains) {
+                            System.out.println(index+" Train ID: "+train.getTrainId());
+                            for(Map.Entry<String,String> entry: train.getStationTimes().entrySet()){
+                                System.out.println("Station: " + entry.getKey() + ", Time: " + entry.getValue());
+                            }
+                        }
+                        System.out.println("Select the train ID to book:");
+                        trainSelectedForBooking = trains.get(scn.nextInt() - 1);
                         break;
                     case 5:
-                        // Call view tickets method
+                        System.out.println("Select the seat...");
+                        List<List<Integer>> seats = trainSelectedForBooking.getSeats();
+                        for(List<Integer> seatRow : seats) {
+                            for(Integer seat : seatRow) {
+                                System.out.print(seat + " ");
+                            }
+                            System.out.println();
+                        }
+                        System.out.println("Enter the seat number to book:");
+                        System.out.println("Enter row");
+                        int row = scn.nextInt();
+                        System.out.println("Enter column");
+                        int column = scn.nextInt();
+                        System.out.println("Booking seat at row " + row + ", column " + column + "...");
+                        Boolean bookingStatus = userBookingService.bookSeat(trainSelectedForBooking, row, column);
+                        if(bookingStatus) {
+                            System.out.println("Seat booked successfully!");
+                        } else {
+                            System.out.println("Failed to book seat. Please try again.");
+                        }
                         break;
                     case 6:
                         count = 7; // Exit the loop
